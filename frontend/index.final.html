@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="ru" class="h-full dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../styles.final.css">
+  <title>ИИ-чат • Grayscale</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full selection:bg-neutral-500/20 bg-white text-black dark:bg-neutral-950 dark:text-neutral-100">
+  <div class="flex h-dvh">
+    <aside id="sidebar"
+      class="fixed inset-y-0 left-0 z-30 hidden w-72 flex-col p-4 border-r border-black/10 bg-gradient-to-b from-white to-neutral-100 md:static md:flex
+             dark:border-white/10 dark:from-neutral-900 dark:to-black">
+      <div class="mb-3 flex items-center gap-2">
+        <div class="size-8 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-900" aria-hidden="true"></div>
+        <div class="font-semibold">ИИ-бот • Console</div>
+      </div>
+      <button id="newChatBtn" type="button"
+        class="mb-4 w-full rounded-lg border border-black/10 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition
+               dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10">
+        <div class="inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5a1 1 0 1 1 2 0v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6Z"/></svg>
+          Новая беседа
+        </div>
+      </button>
+      <div class="mb-2 text-xs text-neutral-500">Недавние</div>
+      <nav id="history" class="flex-1 space-y-1 overflow-y-auto pr-1"></nav>
+      <div class="mt-4 space-y-3">
+        <div class="flex items-center justify-between text-xs text-neutral-500">
+          <span>Модель</span>
+          <span id="tokenCounter" class="text-neutral-500">0 ток.</span>
+        </div>
+        <label class="sr-only" for="modelSelect">Выбор модели</label>
+        <select id="modelSelect"
+          class="w-full rounded-lg border px-3 py-2 text-sm outline-none transition
+                 border-black/10 bg-white text-neutral-800
+                 focus:ring-2 focus:ring-neutral-400/40
+                 dark:border-white/10 dark:bg-black/40 dark:text-neutral-200">
+          <option selected>Live-Learn RAG</option>
+          <option>mixtral-8x7b</option>
+          <option>llama3-8b-instruct</option>
+        </select>
+        <button id="settingsBtn" type="button"
+          class="w-full rounded-lg border px-3 py-2 text-sm transition
+                 border-black/10 bg-neutral-50 text-neutral-700 hover:bg-neutral-100
+                 dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10">
+          <div class="inline-flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm8.94-2.72-.9-.52a7.99 7.99 0 0 0 0-4.52l.9-.52a1 1 0 0 0 .37-1.37l-1-1.73a1 1 0 0 0-1.28-.44l-1 .41a8.04 8.04 0 0 0-3.92-2.27l-.15-1.08A1 1 0 0 0 12.04 0h-2.08a1 1 0 0 0-.99.88l-.15 1.08a8.04 8.04 0 0 0-3.92 2.27l-1-.41Z"/></svg>
+            Настройки
+          </div>
+        </button>
+      </div>
+    </aside>
+
+    <section class="flex flex-1 flex-col">
+      <header class="sticky top-0 z-20 border-b bg-white/50 backdrop-blur border-black/10 dark:border-white/10 dark:bg-black/50">
+        <div class="flex items-center gap-3 px-4 py-3 md:px-6">
+          <button id="menuBtn" type="button"
+            class="md:hidden rounded-lg border p-2 border-black/10 bg-neutral-50 hover:bg-black/5
+                   dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+            aria-label="Открыть меню">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16a1 1 0 1 0 0-2H4a1 1 0 1 0 0 2Zm0 7h16a1 1 0 1 0 0-2H4a1 1 0 1 0 0 2Zm0 7h16a1 1 0 1 0 0-2H4a1 1 0 1 0 0 2Z"/></svg>
+          </button>
+          <h1 class="text-sm font-medium">Чат • <span class="font-semibold">Live-Learn RAG</span></h1>
+          <div class="ml-auto flex items-center gap-2">
+            <button id="themeBtn" type="button"
+              class="rounded-lg border px-3 py-2 text-sm transition
+                     border-black/10 bg-neutral-50 text-neutral-700 hover:bg-neutral-100
+                     dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10">
+              <div class="inline-flex items-center gap-2">
+                <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="size-4 hidden dark:block" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+                <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="size-4 dark:hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84 5.34 3.42 3.92 4.84l1.42 1.42 1.42-1.42Zm10.5 14.32 1.42 1.42 1.42-1.42-1.42-1.42-1.42 1.42ZM12 4a1 1 0 0 1 1-1h0a1 1 0 1 1-2 0h0a1 1 0 0 1 1 1Zm0 17a1 1 0 0 1 1-1h0a1 1 0 1 1-2 0h0a1 1 0 0 1 1 1ZM4 13a1 1 0 0 1-1-1h0a1 1 0 1 1 2 0h0a1 1 0 0 1-1 1Z"/></svg>
+                <span id="themeLabel" class="text-xs text-neutral-500 dark:text-neutral-400">Тёмная тема</span>
+              </div>
+            </button>
+            <div class="hidden md:flex items-center gap-2">
+              <span class="text-xs text-neutral-500 dark:text-neutral-400">Модель:</span>
+              <div class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs border-black/10 bg-neutral-100 text-neutral-700
+                          dark:border-white/10 dark:bg-black/40 dark:text-neutral-300">
+                <span id="modelBadge">Live-Learn RAG</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="chat" class="flex-1 space-y-6 overflow-y-auto px-4 py-6 md:px-6">
+        <article id="typing" class="mx-auto hidden w-full max-w-3xl gap-3 md:flex" aria-live="polite">
+          <div class="mt-1 size-8 shrink-0 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-900"></div>
+          <div class="min-w-0 flex-1">
+            <div class="mb-2 text-xs text-neutral-500 dark:text-neutral-400">ИИ-бот</div>
+            <div class="inline-flex items-center gap-1 rounded-xl border px-3 py-2
+                        border-black/10 bg-white
+                        dark:border-white/10 dark:bg-white/5">
+              <span class="typing-dot">●</span><span class="typing-dot">●</span><span class="typing-dot">●</span>
+            </div>
+          </div>
+        </article>
+      </main>
+
+      <footer class="sticky bottom-0 z-20 bg-gradient-to-t from-white via-white/80 to-transparent px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-3 dark:from-black dark:via-black/70 md:px-6">
+        <form id="composer" class="mx-auto w-full max-w-3xl">
+          <div class="rounded-2xl border p-2 border-black/10 bg-white/80 dark:border-white/10 dark:bg-black/60">
+            <div class="flex items-end gap-2">
+              <label class="sr-only" for="prompt">Сообщение</label>
+              <textarea id="prompt" rows="1" placeholder="Напишите сообщение… (Shift+Enter — перенос строки)"
+                class="min-h-[44px] max-h-40 flex-1 resize-none bg-transparent px-3 py-2 placeholder:text-neutral-500 outline-none"></textarea>
+              <div class="flex items-center gap-1 pr-1">
+                <button type="button" id="stopBtn"
+                  class="hidden rounded-lg border px-3 py-2 text-xs
+                         border-black/10 bg-neutral-50 text-neutral-700 hover:bg-neutral-100
+                         dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10">
+                  Стоп
+                </button>
+                <button type="submit" id="sendBtn"
+                  class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition
+                         bg-gradient-to-r from-neutral-800 to-neutral-900 hover:opacity-95">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2 .01 7Z"/></svg>
+                  Отправить
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2 flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
+            <div>
+              Подсказка:
+              <span class="rounded border px-1 py-0.5 text-[11px] border-black/10 bg-neutral-100 text-neutral-700 dark:border-white/10 dark:bg-black/40 dark:text-neutral-300">/reset</span>,
+              <span class="rounded border px-1 py-0.5 text-[11px] border-black/10 bg-neutral-100 text-neutral-700 dark:border-white/10 dark:bg-black/40 dark:text-neutral-300">/clear</span>,
+              <span class="rounded border px-1 py-0.5 text-[11px] border-black/10 bg-neutral-100 text-neutral-700 dark:border-white/10 dark:bg-black/40 dark:text-neutral-300">/help</span>
+            </div>
+            <a href="#" class="hover:underline">Политика использования</a>
+          </div>
+        </form>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light') document.documentElement.classList.remove('dark');
+        if (saved === 'dark')  document.documentElement.classList.add('dark');
+      } catch {}
+    })();
+
+    const $ = (sel) => document.querySelector(sel);
+    const menuBtn = $('#menuBtn');
+    const sidebar = $('#sidebar');
+    const newChatBtn = $('#newChatBtn');
+    const modelSelect = $('#modelSelect');
+    const modelBadge = $('#modelBadge');
+    const themeBtn = $('#themeBtn');
+    const themeLabel = $('#themeLabel');
+    const chat = $('#chat');
+    const composer = $('#composer');
+    const promptEl = $('#prompt');
+    const typing = $('#typing');
+    const tokenCounter = $('#tokenCounter');
+    const historyNav = $('#history');
+
+    function setTheme(mode) {
+      const root = document.documentElement;
+      if (mode === 'dark') root.classList.add('dark');
+      else root.classList.remove('dark');
+      themeLabel.textContent = mode === 'dark' ? 'Тёмная тема' : 'Светлая тема';
+      try { localStorage.setItem('theme', mode); } catch {}
+    }
+    themeBtn?.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setTheme(isDark ? 'light' : 'dark');
+    });
+
+    menuBtn?.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('flex');
+      sidebar.classList.toggle('hidden', isOpen);
+      sidebar.classList.toggle('flex', !isOpen);
+    });
+
+    // ---- Chat manager (localStorage) ----
+    const LS_CHATS = 'chats';
+    const LS_CURRENT = 'currentChatId';
+
+    function uid() { return 'chat_' + Date.now() + '_' + Math.floor(Math.random() * 1e6); }
+
+    function loadChats() {
+      try {
+        const raw = localStorage.getItem(LS_CHATS);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch { return []; }
+    }
+    function saveChats(chats) {
+      try { localStorage.setItem(LS_CHATS, JSON.stringify(chats)); } catch {}
+    }
+    function getCurrentChatId() {
+      try { return localStorage.getItem(LS_CURRENT) || ''; } catch { return ''; }
+    }
+    function setCurrentChatId(id) {
+      try { localStorage.setItem(LS_CURRENT, id); } catch {}
+    }
+
+    function createChat() {
+      const chats = loadChats();
+      const chatId = uid();
+      const chatObj = { id: chatId, title: 'Новая беседа', messages: [] };
+      chats.unshift(chatObj);
+      saveChats(chats);
+      setCurrentChatId(chatId);
+      renderHistory();
+      renderCurrentChat();
+    }
+
+    function switchChat(id) {
+      setCurrentChatId(id);
+      renderHistory();
+      renderCurrentChat();
+    }
+
+    function renderHistory() {
+      if (!historyNav) return;
+      const chats = loadChats();
+      const currentId = getCurrentChatId();
+      historyNav.innerHTML = '';
+      chats.forEach(c => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'block w-full truncate rounded-lg px-3 py-2 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5 ' + (c.id === currentId ? 'bg-black/5 dark:bg-white/10' : '');
+        btn.textContent = c.title || 'Без названия';
+        btn.addEventListener('click', () => switchChat(c.id));
+        historyNav.appendChild(btn);
+      });
+    }
+
+    function clearChatUI() {
+      // Keep typing placeholder only
+      [...chat.querySelectorAll('article')].forEach(node => {
+        if (node.id !== 'typing') node.remove();
+      });
+    }
+
+    function renderCurrentChat() {
+      clearChatUI();
+      const currentId = getCurrentChatId();
+      const chats = loadChats();
+      const c = chats.find(x => x.id === currentId);
+      if (!c) return;
+      c.messages.forEach(m => appendMessage(m.role, m.content));
+      chat.scrollTo({ top: chat.scrollHeight, behavior: 'auto' });
+    }
+
+    function addMessage(role, content) {
+      const currentId = getCurrentChatId();
+      let chats = loadChats();
+      const idx = chats.findIndex(x => x.id === currentId);
+      if (idx === -1) {
+        // No chat exists, create one automatically
+        const chatId = uid();
+        chats.unshift({ id: chatId, title: 'Новая беседа', messages: [] });
+        saveChats(chats);
+        setCurrentChatId(chatId);
+        return addMessage(role, content);
+      }
+      const chatObj = chats[idx];
+      // Set title from first user message
+      if (role === 'user' && (!chatObj.title || chatObj.title === 'Новая беседа') && chatObj.messages.length === 0) {
+        chatObj.title = (content || 'Новая беседа').slice(0, 50);
+      }
+      chatObj.messages.push({ role, content });
+      saveChats(chats);
+      appendMessage(role, content);
+      renderHistory();
+    }
+
+    newChatBtn?.addEventListener('click', () => {
+      createChat();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    modelSelect?.addEventListener('change', e => {
+      if (modelBadge) modelBadge.textContent = e.target.value;
+    });
+
+    const autosize = (el) => {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 320) + 'px';
+    };
+    promptEl.addEventListener('input', () => autosize(promptEl));
+    promptEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        composer.requestSubmit();
+      }
+    });
+
+    composer.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = promptEl.value.trim();
+      if (!text) return;
+      addMessage('user', text);
+      promptEl.value = '';
+      autosize(promptEl);
+      showTyping(true);
+      try {
+        const data = await askLLRAG(text);
+        showTyping(false);
+        addMessage('assistant', data?.answer || 'Ответ не получен.');
+        appendContexts(data?.contexts || []);
+        bumpTokens();
+      } catch (err) {
+        showTyping(false);
+        addMessage('assistant', `Ошибка запроса: ${escapeHTML(String(err?.message || err))}`);
+      }
+    });
+
+    function getBaseUrl() {
+  return localStorage.getItem('apiBaseUrl') || '/api';
+}
+
+    function getApiKey() {
+      return localStorage.getItem('apiKey') || '';
+    }
+
+    function getOrCreateSessionId() {
+      let id = null;
+      try { id = localStorage.getItem('sessionId'); } catch {}
+      if (!id) {
+        id = 'web_' + Date.now();
+        try { localStorage.setItem('sessionId', id); } catch {}
+      }
+      return id;
+    }
+
+    async function askLLRAG(question, topK = 6) {
+      const headers = { 'Content-Type': 'application/json' };
+      const apiKey = getApiKey();
+      if (apiKey) headers['X-API-Key'] = apiKey;
+      const session = `${getOrCreateSessionId()}:${getCurrentChatId() || 'default'}`;
+
+      const res = await fetch(`${getBaseUrl()}/v1/feedback/ask`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ question, session_id: session, top_k: topK })
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    function appendContexts(contexts) {
+      if (!Array.isArray(contexts) || contexts.length === 0) return;
+      const article = document.createElement('article');
+      article.className = 'mx-auto flex w-full max-w-3xl gap-3';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'mt-1 size-8 shrink-0 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-900';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'min-w-0 flex-1';
+
+      const label = document.createElement('div');
+      label.className = 'mb-2 text-xs text-neutral-500 dark:text-neutral-400';
+      label.textContent = 'Источники';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'rounded-2xl border p-4 border-black/10 bg-neutral-50 text-neutral-800 dark:border-white/10 dark:bg-white/5 dark:text-neutral-200';
+
+      const list = document.createElement('ul');
+      list.className = 'space-y-2 text-sm';
+
+      contexts.slice(0, 6).forEach((c, i) => {
+        const li = document.createElement('li');
+        const metaTitle = (c && c.metadata && (c.metadata.title || c.metadata.source || c.metadata.doc_id)) || `Фрагмент ${i + 1}`;
+        const score = (c && typeof c.score === 'number') ? ` (score: ${c.score.toFixed(3)})` : '';
+        const text = (c && (c.text || c.content)) || '';
+        li.innerHTML = `<div class="font-medium">${escapeHTML(String(metaTitle))}${score}</div>` +
+                       `<div class="text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">${escapeHTML(String(text)).slice(0, 800)}</div>`;
+        list.appendChild(li);
+      });
+
+      bubble.appendChild(list);
+      wrapper.appendChild(label);
+      wrapper.appendChild(bubble);
+      article.appendChild(avatar);
+      article.appendChild(wrapper);
+      chat.appendChild(article);
+      chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.copy-btn');
+      if (!btn) return;
+      const pre = btn.parentElement.querySelector('pre');
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.innerText).then(() => {
+        const old = btn.textContent;
+        btn.textContent = 'Скопировано ✓';
+        setTimeout(() => (btn.textContent = old), 1000);
+      });
+    });
+
+    function appendMessage(role, content) {
+      const isAssistant = role === 'assistant';
+      const article = document.createElement('article');
+      article.className = 'mx-auto flex w-full max-w-3xl gap-3';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'mt-1 size-8 shrink-0 rounded-full ' +
+        (isAssistant ? 'bg-gradient-to-br from-neutral-700 to-neutral-900' : 'bg-neutral-300 dark:bg-neutral-800');
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'min-w-0 flex-1';
+
+      const label = document.createElement('div');
+      label.className = 'mb-2 text-xs ' + (isAssistant ? 'text-neutral-500 dark:text-neutral-400' : 'text-neutral-500');
+      label.textContent = isAssistant ? 'ИИ-бот' : 'Вы';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'rounded-2xl border p-4 ' +
+        (isAssistant
+          ? 'border-black/10 bg-neutral-50 text-neutral-800 dark:border-white/10 dark:bg-white/5 dark:text-neutral-200'
+          : 'border-black/10 bg-white text-neutral-900 dark:border-white/10 dark:bg-black/60 dark:text-neutral-200');
+
+      const codeFence = /```/;
+      if (codeFence.test(content)) {
+        const parts = content.split('```');
+        const code = parts.slice(2).join('```').replace(/^\w*\n/, '');
+        const box = document.createElement('div');
+        box.className = 'relative';
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn absolute right-3 top-3 rounded-lg border px-3 py-1 text-xs border-black/10 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/10 dark:bg-black/40 dark:text-neutral-200 dark:hover:bg-white/10';
+        btn.textContent = 'Копировать';
+        const pre = document.createElement('pre');
+        pre.className = 'overflow-x-auto text-[13px] leading-6';
+        pre.innerHTML = `<code>${escapeHTML(code)}</code>`;
+        box.appendChild(btn);
+        box.appendChild(pre);
+        bubble.appendChild(box);
+      } else {
+        const p = document.createElement('p');
+        p.className = 'whitespace-pre-wrap';
+        p.innerHTML = linkify(escapeHTML(content));
+        bubble.appendChild(p);
+      }
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(bubble);
+      article.appendChild(avatar);
+      article.appendChild(wrapper);
+
+      document.getElementById('chat').appendChild(article);
+      document.getElementById('chat').scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+    }
+
+    function showTyping(show) {
+      const el = document.getElementById('typing');
+      el.classList.toggle('hidden', !show);
+      if (show) document.getElementById('chat').scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+    }
+
+    function bumpTokens() {
+      const n = parseInt(tokenCounter.textContent) || 0;
+      tokenCounter.textContent = (n + Math.floor(50 + Math.random() * 50)) + ' ток.';
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
+
+    function linkify(str) {
+      const urlRe = /(https?:\/\/[^\s]+)/g;
+      return str.replace(urlRe, '<a class="underline hover:opacity-80" href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    // Bootstrap chats on load
+    (function bootstrapChats() {
+      const chats = loadChats();
+      if (!Array.isArray(chats) || chats.length === 0) {
+        createChat();
+        return;
+      }
+      const current = getCurrentChatId();
+      if (!current || !chats.find(c => c.id === current)) {
+        setCurrentChatId(chats[0].id);
+      }
+      renderHistory();
+      renderCurrentChat();
+    })();
+  </script>
+</body>
+</html>

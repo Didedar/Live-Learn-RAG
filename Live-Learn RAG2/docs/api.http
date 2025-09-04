@@ -1,0 +1,302 @@
+### Live-Learn RAG API Test Requests
+### Base URL: http://localhost:8000
+
+#########################
+# Health Checks
+#########################
+
+### Basic health check
+GET http://localhost:8000/healthz
+
+### Detailed health check
+GET http://localhost:8000/healthz/detailed
+
+### Application metrics
+GET http://localhost:8000/metrics
+
+#########################
+# Document Ingestion
+#########################
+
+### Ingest a document via JSON
+POST http://localhost:8000/v1/ingest
+Content-Type: application/json
+
+{
+  "text": "Абай Кунанбаев (1845-1904) — великий казахский поэт, мыслитель и просветитель. Он является основоположником казахской письменной литературы и внес огромный вклад в развитие казахской культуры.",
+  "metadata": {
+    "source": "encyclopedia",
+    "topic": "literature",
+    "language": "kazakh"
+  }
+}
+
+### Ingest additional context
+POST http://localhost:8000/v1/ingest
+Content-Type: application/json
+
+{
+  "text": "Абай написал «Слова назидания» (Қара сөздер) — философские размышления о жизни, морали и образовании. Он также перевел произведения Пушкина, Лермонтова и Гёте на казахский язык.",
+  "metadata": {
+    "source": "literature_guide",
+    "topic": "philosophy",
+    "author": "Abai"
+  }
+}
+
+### Ingest incorrect information (for testing feedback)
+POST http://localhost:8000/v1/ingest
+Content-Type: application/json
+
+{
+  "text": "Абай Кунанбаев был казахский поэт, который жил в 18 веке и написал несколько стихотворений.",
+  "metadata": {
+    "source": "test_incorrect",
+    "accuracy": "low"
+  }
+}
+
+#########################
+# Basic RAG Queries
+#########################
+
+### Query for information about Abai
+POST http://localhost:8000/v1/query
+Content-Type: application/json
+
+{
+  "query": "Расскажите об Абае Кунанбаеве и его вкладе в казахскую литературу",
+  "top_k": 5
+}
+
+### Query in English
+POST http://localhost:8000/v1/query
+Content-Type: application/json
+
+{
+  "query": "Who was Abai Kunanbayev and what did he contribute to literature?",
+  "top_k": 3
+}
+
+### Query about specific works
+POST http://localhost:8000/v1/query
+Content-Type: application/json
+
+{
+  "query": "Что такое «Слова назидания» Абая?",
+  "top_k": 4
+}
+
+#########################
+# Enhanced RAG with Feedback
+#########################
+
+### Ask a question (with session tracking)
+POST http://localhost:8000/v1/feedback/ask
+Content-Type: application/json
+
+{
+  "question": "Когда жил Абай Кунанбаев и каковы его основные произведения?",
+  "session_id": "demo_session_001",
+  "top_k": 6
+}
+
+### Ask follow-up question
+POST http://localhost:8000/v1/feedback/ask
+Content-Type: application/json
+
+{
+  "question": "Какое влияние оказал Абай на казахскую культуру?",
+  "session_id": "demo_session_001",
+  "top_k": 5
+}
+
+#########################
+# Feedback System
+#########################
+
+### Provide negative feedback with correction
+# Note: Replace {message_id} with actual message ID from /ask response
+POST http://localhost:8000/v1/feedback/feedback
+Content-Type: application/json
+
+{
+  "message_id": "REPLACE_WITH_ACTUAL_MESSAGE_ID",
+  "question": "Когда жил Абай Кунанбаев?",
+  "model_answer": "Абай Кунанбаев жил в 18 веке",
+  "user_feedback": {
+    "label": "incorrect",
+    "correction_text": "Абай Кунанбаев жил в 19 веке (1845-1904). Он был великим казахским поэтом, философом и просветителем, основоположником современной казахской письменной литературы.",
+    "scope": "chunk",
+    "target": {
+      "doc_id": 3,
+      "chunk_id": 5
+    },
+    "reason": "Неверно указан век жизни. Абай жил в 19 веке, а не в 18-м."
+  }
+}
+
+### Provide positive feedback
+POST http://localhost:8000/v1/feedback/feedback
+Content-Type: application/json
+
+{
+  "message_id": "REPLACE_WITH_ACTUAL_MESSAGE_ID",
+  "question": "Что написал Абай Кунанбаев?",
+  "model_answer": "Абай написал «Слова назидания» и переводил произведения русских поэтов",
+  "user_feedback": {
+    "label": "correct",
+    "scope": "chunk",
+    "target": {
+      "doc_id": 2,
+      "chunk_id": 3
+    },
+    "reason": "Информация точная и полезная"
+  }
+}
+
+### Provide partial correction
+POST http://localhost:8000/v1/feedback/feedback
+Content-Type: application/json
+
+{
+  "message_id": "REPLACE_WITH_ACTUAL_MESSAGE_ID",
+  "question": "Какие произведения перевел Абай?",
+  "model_answer": "Абай переводил русских поэтов",
+  "user_feedback": {
+    "label": "partially_correct",
+    "correction_text": "Абай переводил произведения Пушкина, Лермонтова, а также немецкого поэта Гёте на казахский язык.",
+    "scope": "chunk",
+    "reason": "Информация неполная - не указаны конкретные авторы и Гёте"
+  }
+}
+
+#########################
+# Feedback Management
+#########################
+
+### Get feedback history
+GET http://localhost:8000/v1/feedback/history?limit=10&offset=0
+
+### Get feedback statistics
+GET http://localhost:8000/v1/feedback/stats
+
+### Get message details
+GET http://localhost:8000/v1/feedback/message/REPLACE_WITH_MESSAGE_ID
+
+### Revert an update
+POST http://localhost:8000/v1/feedback/revert
+Content-Type: application/json
+
+{
+  "update_id": "REPLACE_WITH_UPDATE_ID"
+}
+
+#########################
+# Document Management
+#########################
+
+### List documents
+GET http://localhost:8000/v1/documents?limit=20&offset=0
+
+### Get RAG statistics
+GET http://localhost:8000/v1/stats
+
+### Delete a document
+DELETE http://localhost:8000/v1/documents/1
+
+#########################
+# Error Testing
+#########################
+
+### Test empty query
+POST http://localhost:8000/v1/query
+Content-Type: application/json
+
+{
+  "query": "",
+  "top_k": 5
+}
+
+### Test invalid top_k
+POST http://localhost:8000/v1/query
+Content-Type: application/json
+
+{
+  "query": "test query",
+  "top_k": 25
+}
+
+### Test invalid feedback
+POST http://localhost:8000/v1/feedback/feedback
+Content-Type: application/json
+
+{
+  "message_id": "nonexistent",
+  "question": "test",
+  "model_answer": "test",
+  "user_feedback": {
+    "label": "invalid_label",
+    "scope": "chunk"
+  }
+}
+
+#########################
+# Performance Testing
+#########################
+
+### Batch document ingestion
+POST http://localhost:8000/v1/ingest
+Content-Type: application/json
+
+{
+  "text": "Performance test document 1. This document contains various information for testing system performance under load. It includes multiple sentences and concepts to create meaningful chunks for embedding and retrieval testing.",
+  "metadata": {
+    "batch": "performance_test",
+    "document_number": 1
+  }
+}
+
+### Complex query
+POST http://localhost:8000/v1/feedback/ask
+Content-Type: application/json
+
+{
+  "question": "Проанализируйте творчество Абая Кунанбаева, его влияние на казахскую литературу и философские взгляды, отраженные в его произведениях",
+  "session_id": "complex_analysis_session",
+  "top_k": 10
+}
+
+#########################
+# Multi-language Testing
+#########################
+
+### Query in Russian
+POST http://localhost:8000/v1/feedback/ask
+Content-Type: application/json
+
+{
+  "question": "Каково значение творчества Абая для казахской культуры?",
+  "session_id": "multilang_session",
+  "top_k": 5
+}
+
+### Query in English
+POST http://localhost:8000/v1/feedback/ask
+Content-Type: application/json
+
+{
+  "question": "What is the significance of Abai's work for Kazakh culture?",
+  "session_id": "multilang_session",
+  "top_k": 5
+}
+
+### Query in Kazakh (if supported)
+POST http://localhost:8000/v1/feedback/ask
+Content-Type: application/json
+
+{
+  "question": "Абайдың шығармашылығының қазақ мәдениетіндегі маңызы қандай?",
+  "session_id": "multilang_session",
+  "top_k": 5
+}
