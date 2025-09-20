@@ -1,0 +1,40 @@
+# Core FastAPI dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.12.1
+
+# AI Services
+google-generativeai==0.3.2
+openai==1.3.8  # Optional, for OpenAI embeddings alternative
+
+# Text processing
+tiktoken==0.5.2
+numpy==1.24.4
+scikit-learn==1.3.2  # For TF-IDF and text processing
+scipy==1.11.4  # For sparse matrices and mathematical operations
+
+# HTTP client for tests
+httpx==0.25.2
+
+# Utilities
+pydantic==2.5.2
+pydantic-settings==2.1.0
+loguru==0.7.2
+tenacity==8.2.3
+python-dotenv==1.0.0
+
+# Security and validation
+slowapi==0.1.9
+
+# Development and testing (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+isort==5.12.0
+
+# For production deployment (optional)
+gunicorn==21.2.0

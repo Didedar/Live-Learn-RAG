@@ -1,0 +1,21 @@
+{
+  "summary": {
+    "total_tests": 9,
+    "language_fixes": 2,
+    "confidence_improvements": 9,
+    "better_answers": 2,
+    "speed_improvements": 9,
+    "avg_confidence": 0.8339394217030587,
+    "avg_speed_improvement": 4.836516115400526
+  },
+  "success_rates": {
+    "language_consistency": 22.22222222222222,
+    "confidence_scoring": 100.0,
+    "answer_quality": 22.22222222222222,
+    "performance": 100.0
+  },
+  "recommendations": [
+    "Увеличить детализацию ответов - многие ответы стали слишком краткими",
+    "✅ Языковые проблемы исправлены в 2 случаях"
+  ]
+}
