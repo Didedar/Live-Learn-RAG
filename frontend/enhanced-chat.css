@@ -1,0 +1,276 @@
+/* Enhanced Chat Styles */
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes typing {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+
+/* Основные стили */
+.message-animation {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.sidebar-animation {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Кнопки выбора типа фидбэка */
+.feedback-type-btn {
+  @apply flex items-center justify-center gap-2 p-3 rounded-lg border border-black/10 text-sm font-medium transition-all duration-200 hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/5;
+}
+
+.feedback-type-btn.active {
+  @apply bg-blue-50 border-blue-500 text-blue-700 dark:bg-blue-900/30 dark:border-blue-400 dark:text-blue-300;
+}
+
+/* Сообщения чата */
+.message {
+  @apply flex gap-4 message-animation;
+}
+
+.message.user {
+  @apply flex-row-reverse;
+}
+
+.message-avatar {
+  @apply size-8 rounded-full flex-shrink-0 flex items-center justify-center;
+}
+
+.message-avatar.user {
+  @apply bg-gradient-to-br from-green-500 to-emerald-600;
+}
+
+.message-avatar.assistant {
+  @apply bg-gradient-to-br from-blue-600 to-purple-600;
+}
+
+.message-content {
+  @apply flex-1 space-y-2 max-w-none;
+}
+
+.message-content.user {
+  @apply text-right;
+}
+
+.message-bubble {
+  @apply p-4 rounded-2xl prose prose-neutral dark:prose-invert max-w-none;
+}
+
+.message-bubble.user {
+  @apply bg-blue-600 text-white prose-invert ml-12;
+}
+
+.message-bubble.assistant {
+  @apply bg-neutral-100 dark:bg-neutral-800 mr-12;
+}
+
+/* Кнопки действий с сообщениями */
+.message-actions {
+  @apply flex items-center gap-2 mt-2 opacity-0 transition-opacity duration-200;
+}
+
+.message:hover .message-actions {
+  @apply opacity-100;
+}
+
+.action-btn {
+  @apply p-1.5 rounded-lg text-neutral-500 hover:text-neutral-700 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:text-neutral-200 dark:hover:bg-neutral-700 transition-all duration-200;
+}
+
+/* Индикатор печати */
+.typing-indicator {
+  @apply flex items-center gap-2 text-neutral-500 text-sm;
+}
+
+.typing-dot {
+  @apply size-2 bg-current rounded-full;
+  animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Источники убраны - стили не нужны */
+/* .sources, .source-item, .source-badge styles removed */
+
+/* Статистика обучения */
+.learning-stat {
+  @apply flex justify-between items-center text-xs;
+}
+
+.stat-value {
+  @apply font-medium;
+}
+
+.stat-value.good {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.stat-value.warning {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+
+.stat-value.error {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* Индикатор здоровья системы */
+.health-indicator {
+  @apply flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.health-indicator.healthy {
+  @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+}
+
+.health-indicator.warning {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300;
+}
+
+.health-indicator.error {
+  @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+}
+
+.health-dot {
+  @apply size-2 rounded-full;
+}
+
+.health-dot.healthy {
+  @apply bg-green-500 animate-pulse;
+}
+
+.health-dot.warning {
+  @apply bg-yellow-500 animate-pulse;
+}
+
+.health-dot.error {
+  @apply bg-red-500 animate-pulse;
+}
+
+/* Тост уведомления */
+.toast {
+  @apply fixed bottom-4 right-4 bg-white dark:bg-neutral-800 border border-black/10 dark:border-white/10 rounded-lg shadow-lg p-4 max-w-sm;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.toast.success {
+  @apply bg-green-600 text-white border-green-600;
+}
+
+.toast.warning {
+  @apply bg-yellow-600 text-white border-yellow-600;
+}
+
+.toast.error {
+  @apply bg-red-600 text-white border-red-600;
+}
+
+/* Прогресс бар для trust score */
+.trust-progress {
+  @apply w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2 overflow-hidden;
+}
+
+.trust-progress-bar {
+  @apply h-full transition-all duration-500;
+}
+
+.trust-progress-bar.high {
+  @apply bg-green-500;
+}
+
+.trust-progress-bar.medium {
+  @apply bg-yellow-500;
+}
+
+.trust-progress-bar.low {
+  @apply bg-red-500;
+}
+
+/* Модальное окно фидбэка */
+.feedback-modal {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.feedback-modal-content {
+  @apply w-full max-w-md rounded-2xl bg-white dark:bg-neutral-900 p-6 shadow-2xl;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .message-bubble.user {
+    @apply ml-4;
+  }
+  
+  .message-bubble.assistant {
+    @apply mr-4;
+  }
+  
+  .sidebar {
+    @apply w-full;
+  }
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Выделение текста */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+/* Фокус */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid rgb(59, 130, 246);
+  outline-offset: 2px;
+}
